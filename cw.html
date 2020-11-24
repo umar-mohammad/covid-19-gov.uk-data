@@ -1,4 +1,5 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
+<html>
     <head>
         <style>
             table, th, td {
@@ -12,6 +13,22 @@
                 height: auto;
                 /* padding: 10px; */
             }
+
+            body {
+                padding: 10px;
+                font-family: Arial, Helvetica, sans-serif;
+            }
+
+            #select_by_month_form {
+                padding-top: 10px;
+                padding-bottom: 10px;
+            }
+
+            #select_by_date_form {
+                padding-top: 10px;
+                padding-bottom: 10px;
+            }
+
         </style>
         
     </head>
@@ -19,23 +36,43 @@
         <h1>
             Coronavirus cases in the United Kingdom 
         </h1>
-        <form action="README.md">
-            <label for="a">placeholder:</label>
-            <input type="text" id="a" name="a"><br><br>
-            <label for="b">placeholder:</label>
-            <input type="text" id="b" name="b"><br><br>
-            <input type="month">
+        <div id="select_by_month_form">
+            <h3>Cases by Month</h3>
+            <form>
+                <!-- <label for="a">placeholder:</label>
+                <input type="text" id="a" name="a"><br><br>
+                <label for="b">placeholder:</label>
+                <input type="text" id="b" name="b"><br><br> -->
+                <input id="query_month" type="month">
+                <select>
+                    <optgroup>
+                        <option>daily data</option>
+                        <option>monthly total</option>
+                        <option>daily average</option>
+                    </optgroup>
+                </select>
+                <input type="button" id="update_month_form" value="update">
+            </form>
+        </div>
+        
+        
+        <hr color="black" size="3">
+        
+
+        <div id="select_by_date_form">
+            <h3>Cases by Date</h3>
+            <input type="date" id="query_date" name="date_to_query">
             <select>
                 <optgroup>
-                    <option>daily data</option>
-                    <option>monthly total</option>
-                    <option>daily average</option>
+                    <option>equals</option>
+                    <option>greater than</option>
+                    <option>less than</option>
                 </optgroup>
             </select>
+            <input type="button" id="update_date_form" value="update">
+        </div>
 
-            <input type="button" id="get_results" value="update">
-        </form>
-        <br>
+
         <table>
             <tr>
                 <th>date/month</th>
