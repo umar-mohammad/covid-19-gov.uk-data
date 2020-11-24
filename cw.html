@@ -1,9 +1,50 @@
-<html> 
+<!DOCTYPE html> 
     <head>
-        <h1>Coronavirus cases in the United Kingdom</h1>
+        <style>
+            table, th, td {
+                border: 2px solid black;
+                border-collapse: collapse;
+                padding: 5px;
+            }
+
+            table, tr {
+                width: 100%;
+                height: auto;
+                /* padding: 10px; */
+            }
+        </style>
+        
     </head>
     <body>
+        <h1>
+            Coronavirus cases in the United Kingdom 
+        </h1>
+        <form action="README.md">
+            <label for="a">placeholder:</label>
+            <input type="text" id="a" name="a"><br><br>
+            <label for="b">placeholder:</label>
+            <input type="text" id="b" name="b"><br><br>
+            <input type="month">
+            <select>
+                <optgroup>
+                    <option>daily data</option>
+                    <option>monthly total</option>
+                    <option>daily average</option>
+                </optgroup>
+            </select>
 
+            <input type="button" id="get_results" value="update">
+        </form>
+        <br>
+        <table>
+            <tr>
+                <th>date/month</th>
+                <th>cases</th>
+                <th>tests</th>
+                <th>test capacity</th>
+                <th>patients in hospital</th>
+            </tr>
+        </table>
     </body>
 
 </html>
