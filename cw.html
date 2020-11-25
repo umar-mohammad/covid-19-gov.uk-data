@@ -1,6 +1,137 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <script>
+            /*
+            gets data from the cases.xml file and stores it into the casesXML variable
+            */
+            var cases_xhttp = new XMLHttpRequest();
+            var casesXML;
+
+            
+            
+            cases_xhttp.onreadystatechange = function() {
+                if (this.readyState == 4 && this.status == 200) {
+                    casesXML = this.responseXML;
+                }
+            };
+            cases_xhttp.open("GET", "http://localhost:8080/cases.xml", true);
+            cases_xhttp.send();
+
+            /*
+            gets data from the testing.xml file and stores it into the testsXML variable
+            */
+
+            var tests_xhttp = new XMLHttpRequest();
+            var testingXML;
+            
+            tests_xhttp.onreadystatechange = function() {
+                if (this.readyState == 4 && this.status == 200) {
+                    testingXML = this.responseXML;
+                }
+            };
+            tests_xhttp.open("GET", "http://localhost:8080/testing.xml", true);
+            tests_xhttp.send();
+
+            var hospital_xhttp = new XMLHttpRequest();
+            var hospitalXML;
+            
+            hospital_xhttp.onreadystatechange = function() {
+                if (this.readyState == 4 && this.status == 200) {
+                    hospitalXML = this.responseXML;
+                }
+            };
+            hospital_xhttp.open("GET", "http://localhost:8080/hospital.xml", true);
+            hospital_xhttp.send();
+
+            function update_data() {
+                var cases = casesXML.getElementsByTagName('data');
+                var testing = testingXML.getElementsByTagName('data');
+                var hospital = hospitalXML.getElementsByTagName('data');
+
+                var table = document.getElementById("output_table");
+                var tr = table.getElementsByTagName("tr");
+
+                        for (i=0; i+3<cases.length; i++) {
+                            var row = table.insertRow(-1);
+                            var date_col = row.insertCell(0);
+                            date_col.innerHTML = cases[i+3].getElementsByTagName('date').item(0).innerHTML;
+                            var cases_col = row.insertCell(1);
+                            cases_col.innerHTML = cases[i+3].getElementsByTagName('newCasesByPublishDate').item(0).innerHTML;
+                            var tests_done_col = row.insertCell(2);
+                            tests_done_col.innerHTML = testing[i] != undefined ? testing[i].getElementsByTagName('newPCRTestsByPublishDate').item(0).innerHTML : "";
+                            var tests_planned_col = row.insertCell(3);
+                            tests_planned_col.innerHTML = testing[i] != undefined ? testing[i].getElementsByTagName('plannedPCRCapacityByPublishDate').item(0).innerHTML : "";
+                            var patients_in_hospital_col = row.insertCell(4);
+                            patients_in_hospital_col.innerHTML = hospital[i] != undefined ? hospital[i].getElementsByTagName('hospitalCases').item(0).innerHTML : "";
+                        }
+                
+            }
+
+
+
+            // testing_offset = 0;
+                // hospital_offset = 0;
+                // for (i = 0; i < tr.length; i++) {
+                //     var td = tr[i].getElementsByTagName("td").item(0).innerHTML;
+                //     if (td != testing[0].getElementsByTagName('date').item(0).innerHTML) {
+                //         testing_offset++;
+                //     }
+                //     else if (td != hospital[0].getElementsByTagName('date').item(0).innerHTML) {
+                //         hospital_offset++;
+                //     }
+                //     else{
+                //         break;
+                //     }
+                    
+                // }
+
+                // console.log("hello");
+                // console.log(tr[testing_offset].getElementsByTagName("td").item(0).innerHTML);
+                // console.log(testing[0].getElementsByTagName('date').item(0).innerHTML);
+                // console.log(hospital[0].getElementsByTagName('date').item(0).innerHTML);
+
+                            // function update_data() {
+
+                
+            //     txt = "cases<br>";
+            //     cases = casesXML.getElementsByTagName('newCasesByPublishDate');
+            //     for (i = 0; i<cases.length; i++) {
+            //     txt += cases[i].childNodes[0].nodeValue + "<br>";
+            //     }
+            //     document.getElementById("cases").innerHTML = txt;
+
+            //     tests_done = "tests done<br>";
+            //     tests = testsXML.getElementsByTagName('newPCRTestsByPublishDate');
+            //     for (i = 0; i<tests.length; i++) {       
+            //         if (tests[i].childNodes[0] == undefined) {
+            //             continue;
+            //         }
+            //         tests_done += tests[i].childNodes[0].nodeValue + "<br>";
+            //     }
+            //     document.getElementById("tests").innerHTML = tests_done;
+
+            //     testing_capacity = "testing capacity<br>"
+            //     tests = testsXML.getElementsByTagName('plannedPCRCapacityByPublishDate');
+            //     for (i = 0; i<tests.length; i++) {       
+            //         if (tests[i].childNodes[0] == undefined) {
+            //             continue;
+            //         }
+            //         testing_capacity += tests[i].childNodes[0].nodeValue + "<br>";
+            //     }
+            //     document.getElementById("test_capacity").innerHTML = testing_capacity;
+
+            //     txt = "patients in hospital<br>";
+            //     patients = hospitalXML.getElementsByTagName('hospitalCases');
+            //     for (i = 0; i<patients.length; i++) {       
+            //         if (patients[i].childNodes[0] == undefined) {
+            //             continue;
+            //         }
+            //         txt += patients[i].childNodes[0].nodeValue + "<br>";
+            //     }
+            //     document.getElementById("patients").innerHTML = txt;
+            // }
+        </script>
         <style>
             table, th, td {
                 border: 2px solid black;
@@ -39,10 +170,6 @@
         <div id="select_by_month_form">
             <h3>Cases by Month</h3>
             <form>
-                <!-- <label for="a">placeholder:</label>
-                <input type="text" id="a" name="a"><br><br>
-                <label for="b">placeholder:</label>
-                <input type="text" id="b" name="b"><br><br> -->
                 <input id="query_month" type="month">
                 <select>
                     <optgroup>
@@ -51,7 +178,7 @@
                         <option>daily average</option>
                     </optgroup>
                 </select>
-                <input type="button" id="update_month_form" value="update">
+                <input type="button" id="update_month_form" value="update" onclick="update_data()">
             </form>
         </div>
         
@@ -69,7 +196,7 @@
                     <option>less than</option>
                 </optgroup>
             </select>
-            <input type="button" id="update_date_form" value="update">
+            <input type="button" id="update_date_form" value="update" onclick="update_data()">
         </div>
 
 
@@ -82,6 +209,19 @@
                 <th>patients in hospital</th>
             </tr>
         </table>
+
+        <div>
+            <table id="output_table">
+                <!--<th id="date"></th>
+                <th id="cases"></th>
+                <th id="tests"></th>
+                <th id="test_capacity"></th>
+                <th id="patients"></th> -->
+                
+            </table>
+        </div>
+        
+        
     </body>
 
 </html>
