@@ -46,8 +46,9 @@
             hospital_xhttp.send();
 
             
-
-
+            /*
+            function to fill the output table with daily data
+            */
             function get_daily_data() {
                 //erase previous data in the table and make the first row with the legend
                 var table = document.getElementById("output_table");
@@ -80,6 +81,9 @@
 
             }
 
+            /*
+            function to hide all data that does not match the query month
+            */
             function filter_by_month() {
                 //get the value of the month and year the user wants to query
                 let year_month = document.getElementById('query_month').value;
@@ -105,6 +109,12 @@
                 }
             }
 
+            /*
+            function to filter out all the data that does not match the query_date parameters:
+                if equals: filter all data that does not match the specific date
+                if greater than: filter all the data that comes before the date, date inclusive
+                if less than: filter all data that comes after the date, date inclusive
+            */
             function filter_by_date() {
                 //get the date the user wants to query
                 let yr_mo_day = document.getElementById('query_date').value;
@@ -164,8 +174,10 @@
                 }
             }
 
+            /*
+            function to fill the output table with monthly data
+            */
             function get_monthly_total() {
-
                 //erase previous data in the table and make the first row with the legend
                 var table = document.getElementById("output_table");
                 table.innerHTML = "";
@@ -215,6 +227,9 @@
                 }
             }
 
+            /*
+            function to get the specified month for the monthly total view
+            */
             function filter_for_specific_month() {
                 //get the value of the month and year the user wants to query
                 let year_month = document.getElementById('query_month').value;
@@ -240,8 +255,6 @@
                     }
                 }
             }
-            
-
         </script>
 
         <style>
