@@ -7,8 +7,6 @@
             */
             var cases_xhttp = new XMLHttpRequest();
             var casesXML;
-
-            
             
             cases_xhttp.onreadystatechange = function() {
                 if (this.readyState == 4 && this.status == 200) {
@@ -18,10 +16,10 @@
             cases_xhttp.open("GET", "http://localhost:8080/cases.xml", true);
             cases_xhttp.send();
 
+
             /*
             gets data from the testing.xml file and stores it into the testsXML variable
             */
-
             var tests_xhttp = new XMLHttpRequest();
             var testingXML;
             
@@ -33,6 +31,9 @@
             tests_xhttp.open("GET", "http://localhost:8080/testing.xml", true);
             tests_xhttp.send();
 
+            /*
+            gets data from the hospital.xml file and stores it into the hospitalXML variable
+            */
             var hospital_xhttp = new XMLHttpRequest();
             var hospitalXML;
             
@@ -44,94 +45,205 @@
             hospital_xhttp.open("GET", "http://localhost:8080/hospital.xml", true);
             hospital_xhttp.send();
 
-            function update_data() {
+            
+
+
+            function get_daily_data() {
+                //erase previous data in the table and make the first row with the legend
+                var table = document.getElementById("output_table");
+                table.innerHTML = "";
+                var legend_row = table.insertRow(0);
+                legend_row.outerHTML = "<tr><th>date/month</th><th>cases</th><th>tests</th><th>test capacity</th><th>patients in hospital</th></tr>";
+
+                //get all the data elemtents from the different files
                 var cases = casesXML.getElementsByTagName('data');
                 var testing = testingXML.getElementsByTagName('data');
                 var hospital = hospitalXML.getElementsByTagName('data');
 
-                var table = document.getElementById("output_table");
-                var tr = table.getElementsByTagName("tr");
+                //add code here to handle the extra data from the casesXML file
 
-                        for (i=0; i+3<cases.length; i++) {
-                            var row = table.insertRow(-1);
-                            var date_col = row.insertCell(0);
-                            date_col.innerHTML = cases[i+3].getElementsByTagName('date').item(0).innerHTML;
-                            var cases_col = row.insertCell(1);
-                            cases_col.innerHTML = cases[i+3].getElementsByTagName('newCasesByPublishDate').item(0).innerHTML;
-                            var tests_done_col = row.insertCell(2);
-                            tests_done_col.innerHTML = testing[i] != undefined ? testing[i].getElementsByTagName('newPCRTestsByPublishDate').item(0).innerHTML : "";
-                            var tests_planned_col = row.insertCell(3);
-                            tests_planned_col.innerHTML = testing[i] != undefined ? testing[i].getElementsByTagName('plannedPCRCapacityByPublishDate').item(0).innerHTML : "";
-                            var patients_in_hospital_col = row.insertCell(4);
-                            patients_in_hospital_col.innerHTML = hospital[i] != undefined ? hospital[i].getElementsByTagName('hospitalCases').item(0).innerHTML : "";
-                        }
-                
+
+                //create a new row and insert the appropriate data into it
+                for (i=0; i+3<cases.length; i++) {
+                    var row = table.insertRow(-1);
+                    var date_col = row.insertCell(0);
+                    date_col.innerHTML = cases[i+3].getElementsByTagName('date').item(0).innerHTML;
+                    var cases_col = row.insertCell(1);
+                    cases_col.innerHTML = cases[i+3].getElementsByTagName('newCasesByPublishDate').item(0).innerHTML;
+                    var tests_done_col = row.insertCell(2);
+                    tests_done_col.innerHTML = testing[i] != undefined ? testing[i].getElementsByTagName('newPCRTestsByPublishDate').item(0).innerHTML : "";
+                    var tests_planned_col = row.insertCell(3);
+                    tests_planned_col.innerHTML = testing[i] != undefined ? testing[i].getElementsByTagName('plannedPCRCapacityByPublishDate').item(0).innerHTML : "";
+                    var patients_in_hospital_col = row.insertCell(4);
+                    patients_in_hospital_col.innerHTML = hospital[i] != undefined ? hospital[i].getElementsByTagName('hospitalCases').item(0).innerHTML : "";
+                }
+
             }
 
+            function filter_by_month() {
+                //get the value of the month and year the user wants to query
+                let year_month = document.getElementById('query_month').value;
+                if (year_month == "") return;
+                let list = year_month.split("-");
+                let search_year = list[0];
+                let search_month = list[1];
 
+                table = document.getElementById("output_table");
+                tr = table.getElementsByTagName('tr');
 
-            // testing_offset = 0;
-                // hospital_offset = 0;
-                // for (i = 0; i < tr.length; i++) {
-                //     var td = tr[i].getElementsByTagName("td").item(0).innerHTML;
-                //     if (td != testing[0].getElementsByTagName('date').item(0).innerHTML) {
-                //         testing_offset++;
-                //     }
-                //     else if (td != hospital[0].getElementsByTagName('date').item(0).innerHTML) {
-                //         hospital_offset++;
-                //     }
-                //     else{
-                //         break;
-                //     }
-                    
-                // }
+                // Loop through all table rows, and hide those that don't match the year and month query
+                for (i = 0; i < tr.length; i++) {
+                    td = tr[i].getElementsByTagName("td")[0];
+                    if (td) {
+                        column_date = td.innerHTML.split("-");
+                        if (column_date[0]==search_year && column_date[1]==search_month) {
+                            tr[i].style.display = "";
+                        } else {
+                            tr[i].style.display = "none";
+                        }
+                    }
+                }
+            }
 
-                // console.log("hello");
-                // console.log(tr[testing_offset].getElementsByTagName("td").item(0).innerHTML);
-                // console.log(testing[0].getElementsByTagName('date').item(0).innerHTML);
-                // console.log(hospital[0].getElementsByTagName('date').item(0).innerHTML);
+            function filter_by_date() {
+                //get the date the user wants to query
+                let yr_mo_day = document.getElementById('query_date').value;
+                if (yr_mo_day == "") return;
+                let list = yr_mo_day.split("-");
+                let search_year = list[0];
+                let search_month = list[1];
+                let search_date = list[2];
 
-                            // function update_data() {
+                table = document.getElementById("output_table");
+                tr = table.getElementsByTagName('tr');
 
-                
-            //     txt = "cases<br>";
-            //     cases = casesXML.getElementsByTagName('newCasesByPublishDate');
-            //     for (i = 0; i<cases.length; i++) {
-            //     txt += cases[i].childNodes[0].nodeValue + "<br>";
-            //     }
-            //     document.getElementById("cases").innerHTML = txt;
+                // display the correct data according to what the user wants to see
+                let comparator = document.getElementById('date_comparator').value;
+                if (comparator == "equals") {
+                    for (i = 0; i < tr.length; i++) {
+                        td = tr[i].getElementsByTagName("td")[0];
+                        if (td) {
+                            column_date = td.innerHTML.split("-");
+                            if (column_date[0]==search_year && column_date[1]==search_month && column_date[2]==search_date) {
+                                tr[i].style.display = "";
+                            } else {
+                                tr[i].style.display = "none";
+                            }
+                        }
+                    }
+                }
+                else if (comparator == "greater than") {
+                    for (i = 0; i < tr.length; i++) {
+                        td = tr[i].getElementsByTagName("td")[0];
+                        if (td) {
+                            column_date = td.innerHTML.split("-");
+                            if (column_date[0]>=search_year && column_date[1]>=search_month && column_date[2]>=search_date ||
+                                column_date[0]>=search_year && column_date[1]> search_month ||
+                                column_date[0]> search_year) {
+                                tr[i].style.display = "";
+                            } else {
+                                tr[i].style.display = "none";
+                            }
+                        }
+                    }
+                }
+                else if (comparator == "less than") {
+                    for (i = 0; i < tr.length; i++) {
+                        td = tr[i].getElementsByTagName("td")[0];
+                        if (td) {
+                            column_date = td.innerHTML.split("-");
+                            if (column_date[0]<=search_year && column_date[1]<=search_month && column_date[2]<=search_date ||
+                                column_date[0]<=search_year && column_date[1]< search_month ||
+                                column_date[0]< search_year) {
+                                tr[i].style.display = "";
+                            } else {
+                                tr[i].style.display = "none";
+                            }
+                        }
+                    }
+                }
+            }
 
-            //     tests_done = "tests done<br>";
-            //     tests = testsXML.getElementsByTagName('newPCRTestsByPublishDate');
-            //     for (i = 0; i<tests.length; i++) {       
-            //         if (tests[i].childNodes[0] == undefined) {
-            //             continue;
-            //         }
-            //         tests_done += tests[i].childNodes[0].nodeValue + "<br>";
-            //     }
-            //     document.getElementById("tests").innerHTML = tests_done;
+            function get_monthly_total() {
 
-            //     testing_capacity = "testing capacity<br>"
-            //     tests = testsXML.getElementsByTagName('plannedPCRCapacityByPublishDate');
-            //     for (i = 0; i<tests.length; i++) {       
-            //         if (tests[i].childNodes[0] == undefined) {
-            //             continue;
-            //         }
-            //         testing_capacity += tests[i].childNodes[0].nodeValue + "<br>";
-            //     }
-            //     document.getElementById("test_capacity").innerHTML = testing_capacity;
+                //erase previous data in the table and make the first row with the legend
+                var table = document.getElementById("output_table");
+                table.innerHTML = "";
+                var legend_row = table.insertRow(0);
+                legend_row.outerHTML = "<tr><th>date/month</th><th>cases</th><th>tests</th><th>test capacity</th><th>patients in hospital</th></tr>";
 
-            //     txt = "patients in hospital<br>";
-            //     patients = hospitalXML.getElementsByTagName('hospitalCases');
-            //     for (i = 0; i<patients.length; i++) {       
-            //         if (patients[i].childNodes[0] == undefined) {
-            //             continue;
-            //         }
-            //         txt += patients[i].childNodes[0].nodeValue + "<br>";
-            //     }
-            //     document.getElementById("patients").innerHTML = txt;
-            // }
+                //get all the data elemtents from the different files
+                var cases = casesXML.getElementsByTagName('data');
+                var testing = testingXML.getElementsByTagName('data');
+                var hospital = hospitalXML.getElementsByTagName('data');
+
+                // //add code here to handle the extra data from the casesXML file
+
+                for (month=1; month<=12; month++) {
+                    var row = table.insertRow(-1);
+                    var date_col = row.insertCell(0);
+                    var cases_col = row.insertCell(1);
+                    var tests_done_col = row.insertCell(2);
+                    var tests_planned_col = row.insertCell(3);
+                    var patients_in_hospital_col = row.insertCell(4);
+
+                    var cases_total = 0;
+                    var tests_done_total = 0;
+                    var tests_planned_total = 0;
+                    var hospital_cases_total = 0;
+
+                    table = document.getElementById("output_table");
+                    tr = table.getElementsByTagName('tr');
+
+                    for (i=0; i+3 < cases.length; i++) {
+                        if ((cases[i+3].getElementsByTagName('date').item(0).innerHTML.split("-")[1] == month)) {
+                            cases_total += parseInt(cases[i+3].getElementsByTagName('newCasesByPublishDate').item(0).innerHTML);
+                            if (testing[i] != undefined && !isNaN(parseInt(testing[i].getElementsByTagName('newPCRTestsByPublishDate').item(0).innerHTML))) {
+                                tests_done_total += parseInt(testing[i].getElementsByTagName('newPCRTestsByPublishDate').item(0).innerHTML);
+                            }
+                            tests_planned_total += (testing[i] != undefined ? parseInt(testing[i].getElementsByTagName('plannedPCRCapacityByPublishDate').item(0).innerHTML) : 0);
+                            hospital_cases_total += (hospital[i] != undefined ? parseInt(hospital[i].getElementsByTagName('hospitalCases').item(0).innerHTML) : 0);
+                        }
+                        
+                    }
+                    var months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+                    date_col.innerHTML = months[month-1] + " 2020";
+                    cases_col.innerHTML = cases_total;
+                    tests_done_col.innerHTML = tests_done_total;
+                    tests_planned_col.innerHTML = tests_planned_total;
+                    patients_in_hospital_col.innerHTML = hospital_cases_total;
+                }
+            }
+
+            function filter_for_specific_month() {
+                //get the value of the month and year the user wants to query
+                let year_month = document.getElementById('query_month').value;
+                if (year_month == "") return;
+                let list = year_month.split("-");
+                let search_year = list[0];
+                let search_month = list[1];
+
+                table = document.getElementById("output_table");
+                tr = table.getElementsByTagName('tr');
+                var months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+                // Loop through all table rows, and hide those that don't match the year and month query
+                for (i = 0; i < tr.length; i++) {
+                    td = tr[i].getElementsByTagName("td")[0];
+                    if (td) {
+                        month_year = td.innerHTML.split(" ");
+                        if (month_year[1]==search_year && months.indexOf(month_year[0])== search_month-1) {
+                            tr[i].style.display = "";
+                        } else { 
+                            tr[i].style.display = "none";
+                        }
+                    }
+                }
+            }
+            
+
         </script>
+
         <style>
             table, th, td {
                 border: 2px solid black;
@@ -164,21 +276,14 @@
         
     </head>
     <body>
-        <h1>
-            Coronavirus cases in the United Kingdom 
-        </h1>
+        <h1>Coronavirus cases in the United Kingdom</h1>
         <div id="select_by_month_form">
             <h3>Cases by Month</h3>
             <form>
                 <input id="query_month" type="month">
-                <select>
-                    <optgroup>
-                        <option>daily data</option>
-                        <option>monthly total</option>
-                        <option>daily average</option>
-                    </optgroup>
-                </select>
-                <input type="button" id="update_month_form" value="update" onclick="update_data()">
+                <input type="button" id="daily_data_button" value="daily data" onclick="get_daily_data(); filter_by_month()">
+                <input type="button" id="monthly_total_button" value="monthly total" onclick="get_monthly_total(); filter_for_specific_month()">
+                <input type="button" id="daily average_button" value="daily average" onclick="get_daily_average()">
             </form>
         </div>
         
@@ -189,38 +294,28 @@
         <div id="select_by_date_form">
             <h3>Cases by Date</h3>
             <input type="date" id="query_date" name="date_to_query">
-            <select>
+            <select id="date_comparator">
                 <optgroup>
                     <option>equals</option>
                     <option>greater than</option>
                     <option>less than</option>
                 </optgroup>
             </select>
-            <input type="button" id="update_date_form" value="update" onclick="update_data()">
+            <input type="button" id="update_date_form" value="get data" onclick="get_daily_data(); filter_by_date()">
         </div>
 
-
-        <table>
-            <tr>
-                <th>date/month</th>
-                <th>cases</th>
-                <th>tests</th>
-                <th>test capacity</th>
-                <th>patients in hospital</th>
-            </tr>
-        </table>
-
+        <!-- table to display the coronavirus data-->
         <div>
             <table id="output_table">
-                <!--<th id="date"></th>
-                <th id="cases"></th>
-                <th id="tests"></th>
-                <th id="test_capacity"></th>
-                <th id="patients"></th> -->
-                
+                <tr>
+                    <th>date/month</th>
+                    <th>cases</th>
+                    <th>tests</th>
+                    <th>test capacity</th>
+                    <th>patients in hospital</th>
+                </tr>
             </table>
         </div>
-        
         
     </body>
 
