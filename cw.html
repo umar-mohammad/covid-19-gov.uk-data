@@ -223,16 +223,55 @@
                 }
             }
 
+            function get_daily_average(period) {
+                var table = document.getElementById("output_table");
+                reset_table(table);
+
+                //get all the data elemtents from the different files
+                var cases = casesXML.getElementsByTagName('data');
+                var testing = testingXML.getElementsByTagName('data');
+                var hospital = hospitalXML.getElementsByTagName('data');
+
+                for (i=0; i+3+period<cases.length; i++) {
+                    row_array = [0,0,0,0,0]
+                    row_array[0] = cases[i+3+period].getElementsByTagName('date').item(0).innerHTML + "<br>" + cases[(i+3)].getElementsByTagName('date').item(0).innerHTML;
+                    for(j=i; j<i+3+period; j++) {
+                        row_array[1] += (cases[(j+period)] != undefined ? parseInt(cases[(j+period)].getElementsByTagName('newCasesByPublishDate').item(0).innerHTML) : 0);
+                        if (testing[j] != undefined && !isNaN(parseInt(testing[j].getElementsByTagName('newPCRTestsByPublishDate').item(0).innerHTML))) {
+                            row_array[2] += parseInt(testing[j].getElementsByTagName('newPCRTestsByPublishDate').item(0).innerHTML);
+                        }
+                        row_array[3] += (testing[j] != undefined ? parseInt(testing[j].getElementsByTagName('plannedPCRCapacityByPublishDate').item(0).innerHTML) : 0);
+                        row_array[4] += (hospital[j] != undefined ? parseInt(hospital[j].getElementsByTagName('hospitalCases').item(0).innerHTML) : 0);
+                    }
+                    for(k=1; k<row_array.length; k++) {
+                        row_array[k] = Math.round(row_array[k]/period);
+                    }
+                    addRowBottom(row_array);
+                }
+                
+
+
+            }
+
+            /*
+            resets the table to display just the legend row
+            */
             function reset_table(table) {
                 table.innerHTML = "";
                 var legend_row = table.insertRow(0);
                 legend_row.outerHTML = "<tr><th>date/month</th><th onclick='top_column(1)'>cases</th><th onclick='top_column(2)'>tests</th><th onclick='top_column(3)'>test capacity</th><th onclick='top_column(4)'>patients in hospital</th></tr>";
             }
 
+            /*
+            extracts all data from the current view of the table and returns the data in the form of an array
+            */
             function get_table_data(table) {
                 rows = table.getElementsByTagName('tr');
                 data = new Array(rows.length);
                 for (i=1; i<rows.length; i++){
+                    if (rows[i].style.display == "none") {
+                        continue;
+                    }
                     columns = rows[i].getElementsByTagName('td');
                     row_data = new Array(columns.length);
                     for(j=0; j<row_data.length; j++) {
@@ -242,20 +281,30 @@
                 }
                 return data;
             }
-
+            
+            /*
+            populates the table with the top 10 datapoints using the specified column for comparison
+            */
             function top_column(col_idx) {
                 table = document.getElementById("output_table");
-                data = get_table_data(table);
+                data = get_table_data(table); // get the data from the table
+                if (data.length == 1) return;
                 sorted = data.sort((a, b) => {
                     return b[col_idx]- a[col_idx]
                 })
                 reset_table(table);
-                for (i=0; i<10 && i<data.length; i++) {
+                for (i=0; i<10; i++) {
                     addRowBottom(sorted[i]);
                 }
             }
 
+            /*
+            function that takes an array[date, cases, test...] and adds a row to the output table 
+            with the cells populated with the data
+            */
             function addRowBottom(array) {
+                // if empty array is undefined return
+                if (array == undefined) return;
                 table = document.getElementById("output_table");
                 row = table.insertRow(-1);
                 var date_col = row.insertCell(0);
@@ -299,6 +348,8 @@
                     }
                 }
             }
+
+            
         </script>
 
         <style>
@@ -350,7 +401,7 @@
                 <input id="query_month" type="month">
                 <input type="button" id="daily_data_button" value="daily data" onclick="get_daily_data(); filter_by_month()">
                 <input type="button" id="monthly_total_button" value="monthly total" onclick="get_monthly_total(); filter_for_specific_month()">
-                <input type="button" id="daily average_button" value="daily average" onclick="get_daily_average()">
+                <input type="button" id="daily average_button" value="daily average" onclick="get_daily_average(7)">
             </form>
         </div>
 
