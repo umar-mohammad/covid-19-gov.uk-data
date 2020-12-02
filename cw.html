@@ -107,6 +107,37 @@
                 }
             }
 
+                        /*
+            function to hide all data that does not match the query month
+            */
+            function filter_averages_by_month() {
+                //get the value of the month and year the user wants to query
+                let year_month = document.getElementById('query_month').value;
+                if (year_month == "") return;
+                let list = year_month.split("-");
+                let search_year = list[0];
+                let search_month = list[1];
+
+                table = document.getElementById("output_table");
+                tr = table.getElementsByTagName('tr');
+
+                // Loop through all table rows, and hide those that don't match the year and month query
+                for (i = 0; i < tr.length; i++) {
+                    td = tr[i].getElementsByTagName("td")[0];
+                    if (td) {
+                        dates = td.innerHTML.split("<br>");
+                        start = dates[0].split("-");
+                        end = dates[1].split("-");
+                        
+                        if ((start[0]==search_year && start[1]==search_month) || (end[0]==search_year && end[1]==search_month)) {
+                            tr[i].style.display = "";
+                        } else {
+                            tr[i].style.display = "none";
+                        }
+                    }
+                }
+            }
+
             /*
             function to filter out all the data that does not match the query_date parameters:
                 if equals: filter all data that does not match the specific date
@@ -259,7 +290,7 @@
             function reset_table(table) {
                 table.innerHTML = "";
                 var legend_row = table.insertRow(0);
-                legend_row.outerHTML = "<tr><th>date/month</th><th onclick='top_column(1)'>cases</th><th onclick='top_column(2)'>tests</th><th onclick='top_column(3)'>test capacity</th><th onclick='top_column(4)'>patients in hospital</th></tr>";
+                legend_row.outerHTML = "<tr class='legend'><th>date/month</th><th onclick='top_column(1)'>cases</th><th onclick='top_column(2)'>tests</th><th onclick='top_column(3)'>test capacity</th><th onclick='top_column(4)'>patients in hospital</th></tr>";
             }
 
             /*
@@ -390,25 +421,76 @@
                 padding-bottom: 10px;
             }
 
+            .info {
+                background: #00CED1;
+                font-weight: bold;
+                color: black;
+                text-decoration: none;
+                padding: 3px;
+            }
+            .info:hover {
+                color: #0000FF;
+                text-decoration: underline;
+            }
+
+            tr:hover {
+                background-color: #F7FF33;
+            }
+            .legend {
+                font-weight: bold;
+                font-size:20px;
+            }
+            .legend:hover {
+                background-color: white;
+            }
+            #banner {
+                background-color: #00CED1;
+                padding-top: 0.5%;
+                padding-left: 0.5%;
+            }
+            h1 {
+                font-size: 50px;
+            }
+
+
         </style>
 
     </head>
     <body>
-        <h1>Coronavirus cases in the United Kingdom</h1>
+        <div id="banner">
+            <h1>Coronavirus cases in the United Kingdom</h1>
+        </div>
+        <a class="info" href="https://www.gov.uk/find-coronavirus-local-restrictions">Find out restirctions in your area</a>
+        <br><br>
+        <a class="info" href="https://www.nhs.uk/conditions/coronavirus-covid-19/"> Do you have symptoms?</a>
         <div id="select_by_month_form">
             <h3>Cases by Month</h3>
             <form>
-                <input id="query_month" type="month">
-                <input type="button" id="daily_data_button" value="daily data" onclick="get_daily_data(); filter_by_month()">
-                <input type="button" id="monthly_total_button" value="monthly total" onclick="get_monthly_total(); filter_for_specific_month()">
-                <input type="button" id="daily average_button" value="daily average" onclick="get_daily_average(7)">
+                <select id="query_month">
+                    <optgroup>
+                        <option value=""> </option>
+                        <option value="2020-01">January</option>
+                        <option value="2020-02">February</option>
+                        <option value="2020-03">March</option>
+                        <option value="2020-04">April</option>
+                        <option value="2020-05">May</option>
+                        <option value="2020-06">June</option>
+                        <option value="2020-07">July</option>
+                        <option value="2020-08">August</option>
+                        <option value="2020-09">September</option>
+                        <option value="2020-10">October</option>
+                        <option value="2020-11">November</option>
+                        <option value="2020-12">December</option>
+
+                    </optgroup>
+                </select>
+                <input class="query-button" type="button" id="daily_data_button" value="daily data" onclick="get_daily_data(); filter_by_month()">
+                <input class="query-button" type="button" id="monthly_total_button" value="monthly total" onclick="get_monthly_total(); filter_for_specific_month()">
+                <input class="query-button" type="button" id="daily average_button" value="daily average" onclick="get_daily_average(3); filter_averages_by_month()">
             </form>
         </div>
-
-
-        <hr color="black" size="3">
-
-
+        <br>
+        <hr style="box-shadow: 0px 2px #F7FF33" color="black" size="7">
         <div id="select_by_date_form">
             <h3>Cases by Date</h3>
             <input type="date" id="query_date" name="date_to_query">
@@ -425,7 +507,7 @@
         <!-- table to display the coronavirus data-->
         <div>
             <table id="output_table">
-                <tr>
+                <tr class="legend">
                     <th>date/month</th>
                     <th onclick="top_column(1)">cases</th>
                     <th onclick="top_column(2)">tests</th>
